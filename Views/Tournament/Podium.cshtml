@@ -26,6 +26,18 @@
                 <div class="winner-team">@runnerUp.Team</div>
             </div>
         }
+        else
+        {
+            <div class="podium-place" style="opacity: 0.5;">
+                <div class="trophy-icon silver">
+                    <i class="fas fa-medal"></i>
+                </div>
+                <div class="place-number silver">
+                    2º LUGAR
+                </div>
+                <div class="winner-name">-</div>
+            </div>
+        }
 
         @if (winner != null)
         {
@@ -40,6 +52,18 @@
                 <div class="winner-team" style="font-size: 1.3rem;">@winner.Team</div>
             </div>
         }
+        else
+        {
+            <div class="podium-place">
+                <div class="trophy-icon gold">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="place-number gold">
+                    🏆 CAMPEÓN 🏆
+                </div>
+                <div class="winner-name" style="font-size: 2rem;">-</div>
+            </div>
+        }
 
         @if (thirdPlace != null)
         {
@@ -52,6 +76,18 @@
                 </div>
                 <div class="winner-name">@thirdPlace.Name</div>
                 <div class="winner-team">@thirdPlace.Team</div>
+            </div>
+        }
+        else
+        {
+            <div class="podium-place" style="opacity: 0.5;">
+                <div class="trophy-icon bronze">
+                    <i class="fas fa-medal"></i>
+                </div>
+                <div class="place-number bronze">
+                    3º LUGAR
+                </div>
+                <div class="winner-name">-</div>
             </div>
         }
     </div>
@@ -71,33 +107,39 @@
     </div>
 </div>
 
-@section Scripts {
+@@section Scripts {
     <script>
-        for (let i = 0; i < 100; i++) {
-            setTimeout(() => createConfetti(), i * 30);
-        }
-
-        function createConfetti() {
-            const confetti = document.createElement('div');
-            confetti.className = 'confetti';
-            confetti.style.left = Math.random() * 100 + '%';
-            confetti.style.animationDelay = Math.random() * 2 + 's';
-            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
-
-            const colors = ['#00e5ff', '#ffd700', '#ff9f00', '#a855f7', '#00ff88', '#c0c0c0', '#cd7f32'];
-            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-            confetti.style.width = (Math.random() * 10 + 5) + 'px';
-            confetti.style.height = confetti.style.width;
-
-            document.querySelector('.podium-screen').appendChild(confetti);
-
-            setTimeout(() => confetti.remove(), 5000);
-        }
-
-        setInterval(() => {
-            for (let i = 0; i < 5; i++) {
-                createConfetti();
+        // Solo crear confetti si hay al menos un ganador
+        @if (winner != null)
+        {
+            <text>
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => createConfetti(), i * 30);
             }
-        }, 500);
+
+            function createConfetti() {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+
+                const colors = ['#00e5ff', '#ffd700', '#ff9f00', '#a855f7', '#00ff88', '#c0c0c0', '#cd7f32'];
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = (Math.random() * 10 + 5) + 'px';
+                confetti.style.height = confetti.style.width;
+
+                document.querySelector('.podium-screen').appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 5000);
+            }
+
+            setInterval(() => {
+                for (let i = 0; i < 5; i++) {
+                    createConfetti();
+                }
+            }, 500);
+            </text>
+        }
     </script>
 }
