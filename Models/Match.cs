@@ -1,5 +1,4 @@
-﻿// Models/Match.cs
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RoboticsFixture.Models
 {
@@ -22,6 +21,7 @@ namespace RoboticsFixture.Models
         public Competitor Winner { get; set; }
 
         public bool IsBye { get; set; }
+        public bool IsRepechaje { get; set; }
         public bool IsCompleted { get; set; }
     }
 }

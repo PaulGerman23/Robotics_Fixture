@@ -39,6 +39,70 @@ else
     }
 
     <div class="fixture-container">
+        @{
+            var repechajeRound0 = Model.Where(m => m.Round == 0 && m.IsRepechaje).ToList();
+            if (repechajeRound0.Any())
+            {
+                <div class="repechaje-section mb-5">
+                    <div class="repechaje-header">
+                        <i class="fas fa-random me-2"></i> REPECHAJE INICIAL
+                    </div>
+                    @foreach (var match in repechajeRound0)
+                    {
+                        <div class="match-card repechaje @(match.IsCompleted ? "completed" : "")">
+                            <div class="repechaje-badge">
+                                <i class="fas fa-exclamation-triangle me-2"></i>VS EXTRA
+                            </div>
+
+                            <div class="competitor-slot @(match.WinnerId == match.Competitor1Id ? "winner" : "")">
+                                <div class="competitor-info">
+                                    <i class="fas fa-robot competitor-icon"></i>
+                                    <div class="competitor-details">
+                                        <h6>@match.Competitor1?.Name</h6>
+                                        <small>@match.Competitor1?.Team</small>
+                                    </div>
+                                </div>
+                                @if (!match.IsCompleted)
+                                {
+                                    <form asp-action="SetWinner" method="post" style="display:inline;">
+                                        <input type="hidden" name="matchId" value="@match.Id" />
+                                        <input type="hidden" name="winnerId" value="@match.Competitor1Id" />
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+
+                            <div class="match-vs">
+                                <i class="fas fa-bolt"></i> VS <i class="fas fa-bolt"></i>
+                            </div>
+
+                            <div class="competitor-slot @(match.WinnerId == match.Competitor2Id ? "winner" : "")">
+                                <div class="competitor-info">
+                                    <i class="fas fa-robot competitor-icon"></i>
+                                    <div class="competitor-details">
+                                        <h6>@match.Competitor2?.Name</h6>
+                                        <small>@match.Competitor2?.Team</small>
+                                    </div>
+                                </div>
+                                @if (!match.IsCompleted)
+                                {
+                                    <form asp-action="SetWinner" method="post" style="display:inline;">
+                                        <input type="hidden" name="matchId" value="@match.Id" />
+                                        <input type="hidden" name="winnerId" value="@match.Competitor2Id" />
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+
         <div class="rounds-wrapper">
             @for (int r = 1; r <= maxRound; r++)
             {
@@ -55,77 +119,64 @@ else
 
                     @foreach (var match in roundMatches)
                     {
-                        <div class="match-card @(match.IsCompleted ? "completed" : "") @(match.IsBye ? "bye" : "")">
-                            @if (match.IsCompleted && !match.IsBye)
+                        <div class="match-card @(match.IsCompleted ? "completed" : "") @(match.IsRepechaje ? "repechaje" : "")">
+                            @if (match.IsCompleted && !match.IsRepechaje)
                             {
                                 <div class="winner-badge">
                                     <i class="fas fa-trophy"></i>
                                 </div>
                             }
 
-                            @if (match.IsBye)
+                            @if (match.IsRepechaje)
                             {
-                                <div class="text-center">
-                                    <div class="competitor-slot winner">
-                                        <div class="competitor-info">
-                                            <i class="fas fa-robot competitor-icon"></i>
-                                            <div class="competitor-details">
-                                                <h6>@match.Competitor1?.Name</h6>
-                                                <small>@match.Competitor1?.Team</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="bye-badge mt-3">
-                                        <i class="fas fa-fast-forward me-2"></i>PASE DIRECTO
-                                    </div>
+                                <div class="repechaje-badge">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>REPECHAJE R@r
                                 </div>
                             }
-                            else
-                            {
-                                <div class="competitor-slot @(match.WinnerId == match.Competitor1Id ? "winner" : "")">
-                                    <div class="competitor-info">
-                                        <i class="fas fa-robot competitor-icon"></i>
-                                        <div class="competitor-details">
-                                            <h6>@(match.Competitor1?.Name ?? "TBD")</h6>
-                                            <small>@match.Competitor1?.Team</small>
-                                        </div>
-                                    </div>
-                                    @if (!match.IsCompleted && match.Competitor1 != null && match.Competitor2 != null)
-                                    {
-                                        <form asp-action="SetWinner" method="post" style="display:inline;">
-                                            <input type="hidden" name="matchId" value="@match.Id" />
-                                            <input type="hidden" name="winnerId" value="@match.Competitor1Id" />
-                                            <button type="submit" class="btn btn-sm btn-success">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        </form>
-                                    }
-                                </div>
 
-                                <div class="match-vs">
-                                    <i class="fas fa-bolt"></i> VS <i class="fas fa-bolt"></i>
-                                </div>
-
-                                <div class="competitor-slot @(match.WinnerId == match.Competitor2Id ? "winner" : "")">
-                                    <div class="competitor-info">
-                                        <i class="fas fa-robot competitor-icon"></i>
-                                        <div class="competitor-details">
-                                            <h6>@(match.Competitor2?.Name ?? "TBD")</h6>
-                                            <small>@match.Competitor2?.Team</small>
-                                        </div>
+                            <div class="competitor-slot @(match.WinnerId == match.Competitor1Id ? "winner" : "")">
+                                <div class="competitor-info">
+                                    <i class="fas fa-robot competitor-icon"></i>
+                                    <div class="competitor-details">
+                                        <h6>@(match.Competitor1?.Name ?? "TBD")</h6>
+                                        <small>@match.Competitor1?.Team</small>
                                     </div>
-                                    @if (!match.IsCompleted && match.Competitor1 != null && match.Competitor2 != null)
-                                    {
-                                        <form asp-action="SetWinner" method="post" style="display:inline;">
-                                            <input type="hidden" name="matchId" value="@match.Id" />
-                                            <input type="hidden" name="winnerId" value="@match.Competitor2Id" />
-                                            <button type="submit" class="btn btn-sm btn-success">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        </form>
-                                    }
                                 </div>
-                            }
+                                @if (!match.IsCompleted && match.Competitor1 != null && match.Competitor2 != null)
+                                {
+                                    <form asp-action="SetWinner" method="post" style="display:inline;">
+                                        <input type="hidden" name="matchId" value="@match.Id" />
+                                        <input type="hidden" name="winnerId" value="@match.Competitor1Id" />
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+
+                            <div class="match-vs">
+                                <i class="fas fa-bolt"></i> VS <i class="fas fa-bolt"></i>
+                            </div>
+
+                            <div class="competitor-slot @(match.WinnerId == match.Competitor2Id ? "winner" : "")">
+                                <div class="competitor-info">
+                                    <i class="fas fa-robot competitor-icon"></i>
+                                    <div class="competitor-details">
+                                        <h6>@(match.Competitor2?.Name ?? "TBD")</h6>
+                                        <small>@match.Competitor2?.Team</small>
+                                    </div>
+                                </div>
+                                @if (!match.IsCompleted && match.Competitor1 != null && match.Competitor2 != null)
+                                {
+                                    <form asp-action="SetWinner" method="post" style="display:inline;">
+                                        <input type="hidden" name="matchId" value="@match.Id" />
+                                        <input type="hidden" name="winnerId" value="@match.Competitor2Id" />
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
                         </div>
                     }
                 </div>
@@ -133,3 +184,54 @@ else
         </div>
     </div>
 }
+
+<style>
+    .repechaje-section {
+        background: linear-gradient(135deg, rgba(255, 159, 0, 0.1), rgba(255, 71, 87, 0.1));
+        border: 3px solid #ff9f00;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(255, 159, 0, 0.4);
+    }
+
+    .repechaje-header {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 900;
+        color: #ff9f00;
+        font-family: 'Orbitron', sans-serif;
+        text-shadow: 0 0 20px rgba(255, 159, 0, 0.8);
+        margin-bottom: 2rem;
+        animation: repechajeGlow 2s ease-in-out infinite;
+    }
+
+    @@keyframes repechajeGlow {
+        0%, 100% { text-shadow: 0 0 20px rgba(255, 159, 0, 0.8); }
+        50% { text-shadow: 0 0 30px rgba(255, 159, 0, 1), 0 0 40px rgba(255, 159, 0, 0.8); }
+    }
+
+    .match-card.repechaje {
+        border-color: #ff9f00;
+        background: linear-gradient(135deg, rgba(255, 159, 0, 0.15), rgba(255, 71, 87, 0.1));
+        box-shadow: 0 8px 30px rgba(255, 159, 0, 0.4);
+        position: relative;
+    }
+
+    .repechaje-badge {
+        background: linear-gradient(135deg, #ff9f00, #ff7700);
+        color: #0a0f1f;
+        padding: 0.6rem 1.2rem;
+        border-radius: 25px;
+        font-weight: 900;
+        font-family: 'Orbitron', sans-serif;
+        text-align: center;
+        margin-bottom: 1rem;
+        box-shadow: 0 6px 20px rgba(255, 159, 0, 0.5);
+        animation: badgePulse 2s ease-in-out infinite;
+    }
+
+    .repechaje-badge i {
+        color: #ffffff;
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+    }
+</style>

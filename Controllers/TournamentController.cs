@@ -46,25 +46,22 @@ namespace RoboticsFixture.Controllers
             var random = new Random();
             var shuffled = competitors.OrderBy(x => random.Next()).ToList();
 
-            int? byeCompetitorId = null;
-
             if (shuffled.Count % 2 != 0)
             {
-                var byeCompetitor = shuffled[random.Next(shuffled.Count)];
-                byeCompetitorId = byeCompetitor.Id;
-
-                var byeMatch = new Match
+                var twoCompetitors = shuffled.OrderBy(x => random.Next()).Take(2).ToList();
+                var repechaje = new Match
                 {
-                    Round = 1,
+                    Round = 0,
                     Position = 0,
-                    Competitor1Id = byeCompetitor.Id,
-                    Competitor2Id = null,
-                    WinnerId = byeCompetitor.Id,
-                    IsBye = true,
-                    IsCompleted = true
+                    Competitor1Id = twoCompetitors[0].Id,
+                    Competitor2Id = twoCompetitors[1].Id,
+                    IsRepechaje = true,
+                    IsCompleted = false
                 };
-                _context.Matches.Add(byeMatch);
-                shuffled.Remove(byeCompetitor);
+                _context.Matches.Add(repechaje);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(ShowRepechaje), new { category, matchId = repechaje.Id });
             }
 
             for (int i = 0; i < shuffled.Count; i += 2)
@@ -75,27 +72,25 @@ namespace RoboticsFixture.Controllers
                     Position = (i / 2) + 1,
                     Competitor1Id = shuffled[i].Id,
                     Competitor2Id = shuffled[i + 1].Id,
-                    IsBye = false,
+                    IsRepechaje = false,
                     IsCompleted = false
                 };
                 _context.Matches.Add(match);
             }
 
             await _context.SaveChangesAsync();
-
-            if (byeCompetitorId.HasValue)
-            {
-                return RedirectToAction(nameof(ShowLottery), new { category, byeCompetitorId });
-            }
-
             return RedirectToAction(nameof(Fixture), new { category });
         }
 
-        public async Task<IActionResult> ShowLottery(string category, int byeCompetitorId)
+        public async Task<IActionResult> ShowRepechaje(string category, int matchId)
         {
-            var competitor = await _context.Competitors.FindAsync(byeCompetitorId);
+            var match = await _context.Matches
+                .Include(m => m.Competitor1)
+                .Include(m => m.Competitor2)
+                .FirstOrDefaultAsync(m => m.Id == matchId);
+
             ViewBag.Category = category;
-            return View(competitor);
+            return View(match);
         }
 
         public async Task<IActionResult> Fixture(string category)
@@ -119,6 +114,9 @@ namespace RoboticsFixture.Controllers
 
             ViewBag.ShowPodium = allCompleted && isFinal;
 
+            var repechajeMatch = matches.FirstOrDefault(m => m.IsRepechaje && !m.IsCompleted);
+            ViewBag.HasPendingRepechaje = repechajeMatch != null;
+
             return View(matches);
         }
 
@@ -137,7 +135,35 @@ namespace RoboticsFixture.Controllers
             await _context.SaveChangesAsync();
 
             var category = match.Competitor1?.Category ?? match.Competitor2?.Category;
-            await CheckAndAdvanceRound(category);
+
+            if (match.IsRepechaje && match.Round == 0)
+            {
+                var allCompetitors = await _context.Competitors
+                    .Where(c => c.IsActive && c.Category == category)
+                    .ToListAsync();
+
+                var random = new Random();
+                var shuffled = allCompetitors.OrderBy(x => random.Next()).ToList();
+
+                for (int i = 0; i < shuffled.Count; i += 2)
+                {
+                    var newMatch = new Match
+                    {
+                        Round = 1,
+                        Position = (i / 2) + 1,
+                        Competitor1Id = shuffled[i].Id,
+                        Competitor2Id = shuffled[i + 1].Id,
+                        IsRepechaje = false,
+                        IsCompleted = false
+                    };
+                    _context.Matches.Add(newMatch);
+                }
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                await CheckAndAdvanceRound(category);
+            }
 
             return RedirectToAction(nameof(Fixture), new { category });
         }
@@ -150,6 +176,7 @@ namespace RoboticsFixture.Controllers
                 .Include(m => m.Winner)
                 .Where(m => (m.Competitor1 != null && m.Competitor1.Category == category) ||
                            (m.Competitor2 != null && m.Competitor2.Category == category))
+                .Where(m => !m.IsRepechaje || m.Round > 0)
                 .ToListAsync();
 
             var maxRound = currentRoundMatches.Max(m => m.Round);
@@ -166,19 +193,19 @@ namespace RoboticsFixture.Controllers
 
                 if (winners.Count % 2 != 0)
                 {
-                    var byeWinner = winners[random.Next(winners.Count)];
-                    var byeMatch = new Match
+                    var twoWinners = winners.OrderBy(x => random.Next()).Take(2).ToList();
+                    var repechaje = new Match
                     {
                         Round = nextRound,
                         Position = 0,
-                        Competitor1Id = byeWinner.Id,
-                        Competitor2Id = null,
-                        WinnerId = byeWinner.Id,
-                        IsBye = true,
-                        IsCompleted = true
+                        Competitor1Id = twoWinners[0].Id,
+                        Competitor2Id = twoWinners[1].Id,
+                        IsRepechaje = true,
+                        IsCompleted = false
                     };
-                    _context.Matches.Add(byeMatch);
-                    winners.Remove(byeWinner);
+                    _context.Matches.Add(repechaje);
+                    winners.Remove(twoWinners[0]);
+                    winners.Remove(twoWinners[1]);
                 }
 
                 for (int i = 0; i < winners.Count; i += 2)
@@ -189,7 +216,7 @@ namespace RoboticsFixture.Controllers
                         Position = (i / 2) + 1,
                         Competitor1Id = winners[i].Id,
                         Competitor2Id = winners[i + 1].Id,
-                        IsBye = false,
+                        IsRepechaje = false,
                         IsCompleted = false
                     };
                     _context.Matches.Add(match);
