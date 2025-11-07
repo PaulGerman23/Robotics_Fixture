@@ -1,0 +1,51 @@
+﻿@* Views/Competitors/Delete.cshtml *@
+@model RoboticsFixture.Models.Competitor
+
+@{
+    ViewData["Title"] = "Eliminar Competidor";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <i class="fas fa-exclamation-triangle me-2"></i> Confirmar Eliminación
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-info-circle me-2"></i>
+                    ¿Está seguro que desea eliminar este competidor?
+                </div>
+
+                <dl class="row">
+                    <dt class="col-sm-3">
+                        <i class="fas fa-user me-2"></i>Nombre
+                    </dt>
+                    <dd class="col-sm-9">@Model.Name</dd>
+
+                    <dt class="col-sm-3">
+                        <i class="fas fa-users me-2"></i>Equipo
+                    </dt>
+                    <dd class="col-sm-9">@Model.Team</dd>
+
+                    <dt class="col-sm-3">
+                        <i class="fas fa-tag me-2"></i>Categoría
+                    </dt>
+                    <dd class="col-sm-9">@Model.Category</dd>
+                </dl>
+
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Eliminar
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,73 @@
+﻿@model RoboticsFixture.Models.Competitor
+
+@{
+    ViewData["Title"] = "Sorteo BYE";
+    var category = ViewBag.Category;
+}
+
+<div class="lottery-modal" id="lotteryModal">
+    <div class="lottery-content">
+        <h1 class="lottery-title">
+            <i class="fas fa-dice me-3"></i>
+            SORTEO DE PASE DIRECTO
+        </h1>
+
+        <div class="lottery-wheel" id="lotteryWheel">
+            <div class="lottery-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+        </div>
+
+        <div class="lottery-winner" id="lotteryWinner" style="opacity: 0;">
+            <i class="fas fa-trophy mb-3" style="font-size: 3rem; color: var(--success-green); filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.8));"></i>
+            <h2 style="color: var(--primary-cyan); font-family: 'Orbitron', sans-serif; margin-bottom: 1rem;">
+                ¡PASE AUTOMÁTICO!
+            </h2>
+            <h3 style="color: var(--text-primary); font-weight: 800;">
+                @Model.Name
+            </h3>
+            <p style="color: var(--text-muted); font-size: 1.3rem;">
+                @Model.Team
+            </p>
+        </div>
+
+        <button class="btn btn-success btn-lg mt-4" id="continueBtn" style="opacity: 0;" onclick="continueTournament()">
+            <i class="fas fa-arrow-right me-2"></i>
+            Continuar al Fixture
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        setTimeout(() => {
+            document.getElementById('lotteryWinner').style.opacity = '1';
+            document.getElementById('lotteryWinner').style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            document.getElementById('lotteryWinner').style.transform = 'translateY(0)';
+        }, 2500);
+
+        setTimeout(() => {
+            document.getElementById('continueBtn').style.opacity = '1';
+            document.getElementById('continueBtn').style.transition = 'opacity 0.5s ease';
+        }, 3500);
+
+        function continueTournament() {
+            window.location.href = '@Url.Action("Fixture", new { category = category })';
+        }
+
+        for (let i = 0; i < 50; i++) {
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.animationDelay = Math.random() * 3 + 's';
+            confetti.style.background = ['#00e5ff', '#ff9f00', '#a855f7', '#00ff88'][Math.floor(Math.random() * 4)];
+            document.querySelector('.lottery-modal').appendChild(confetti);
+
+            setTimeout(() => confetti.remove(), 3000);
+        }
+    </script>
+}

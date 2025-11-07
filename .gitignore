@@ -1,0 +1,157 @@
+## ===================================
+## .NET Core / ASP.NET MVC Git Ignore
+## Proyecto: Robotics Fixture System
+## ===================================
+
+# Archivos del sistema
+*.DS_Store
+Thumbs.db
+
+# Archivos de usuario y configuración local
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.vspscc
+*.vssscc
+
+# Archivos generados por Visual Studio
+.vs/
+*.VC.db
+*.VC.VC.opendb
+
+# Binarios y compilación
+bin/
+obj/
+out/
+[Bb]uild/
+[Ll]og/
+
+# Archivos temporales
+*.tmp
+*.temp
+*.bak
+*.old
+*.orig
+
+# Archivos de paquetes NuGet
+*.nupkg
+# Paquetes descargados
+packages/
+# Configuración de NuGet
+.nuget/
+project.lock.json
+project.fragment.lock.json
+
+# Archivos de publicación y builds
+*.Publish.xml
+publish/
+wwwroot/dist/
+wwwroot/lib/
+wwwroot/node_modules/
+
+# Archivos de runtime
+*.pidb
+*.svclog
+*.scc
+*.dbmdl
+*.jfm
+
+# Archivos de usuario específicos de Visual Studio
+*.rsuser
+*.sln.iml
+*.DotSettings.user
+
+# Configuraciones de Rider / JetBrains
+.idea/
+*.sln.iml
+
+# Archivos generados por Entity Framework Migrations
+Migrations/
+DatabaseScripts/
+*.sqlite
+*.mdf
+*.ldf
+
+# Archivos del sistema operativo
+ehthumbs.db
+Icon?
+Desktop.ini
+$RECYCLE.BIN/
+
+# Logs
+*.log
+logs/
+LogFiles/
+
+# Archivos de entorno
+.env
+.env.*
+appsettings.Development.json
+appsettings.Local.json
+appsettings.Secret.json
+
+# Node.js (por si usás frontend adicional)
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+
+# Archivos de publicación
+*.publishsettings
+PublishProfiles/
+*.psess
+*.vsp
+*.vspx
+*.sap
+*.coverage
+*.coveragexml
+
+# Cache
+.cache/
+*.swp
+
+# Backups automáticos
+*.bak
+*.orig
+
+# Archivos de documentación o diseño (opcional)
+*.ai
+*.psd
+*.xcf
+*.png~
+*.jpg~
+
+# Archivos de Python o scripts auxiliares (opcional)
+__pycache__/
+*.pyc
+
+# Archivos de configuración locales de VS Code
+.vscode/
+.history/
+
+# Carpeta de análisis y pruebas
+TestResults/
+coverage/
+*.coverage
+*.testsettings
+
+# Archivos del sistema local (Mac/Linux)
+*.AppleDouble
+*.LSOverride
+
+# Archivos de certificados locales
+*.pfx
+*.key
+*.crt
+*.pem
+
+# Archivos ZIP o empaquetados
+*.zip
+*.7z
+*.tar
+*.gz
+
+# Backups del editor
+*~

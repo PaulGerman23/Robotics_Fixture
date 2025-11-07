@@ -1,0 +1,66 @@
+﻿@model List<string>
+
+@{
+    ViewData["Title"] = "Torneos";
+}
+
+<div class="mb-4">
+    <h1>
+        <i class="fas fa-trophy me-2"></i> Gestión de Torneos
+    </h1>
+    <p style="color: var(--text-muted); font-weight: 500;">Selecciona una categoría para generar o ver el fixture</p>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-4">
+    @if (Model.Any())
+    {
+        @foreach (var category in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-4">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h4 class="card-title mb-4" style="color: var(--text-primary); font-weight: 700;">@category</h4>
+                        <div class="d-grid gap-3">
+                            <a href="@Url.Action("Fixture", new { category })" class="btn btn-primary">
+                                <i class="fas fa-eye"></i> Ver Fixture
+                            </a>
+                            <form asp-action="GenerateFixture" method="post">
+                                <input type="hidden" name="category" value="@category" />
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="fas fa-random"></i> Generar Nuevo
+                                </button>
+                            </form>
+                            <form asp-action="ResetTournament" method="post" onsubmit="return confirm('¿Está seguro de reiniciar el torneo?');">
+                                <input type="hidden" name="category" value="@category" />
+                                <button type="submit" class="btn btn-danger w-100">
+                                    <i class="fas fa-redo"></i> Reiniciar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                No hay categorías disponibles. Agregue competidores primero.
+            </div>
+        </div>
+    }
+</div>
