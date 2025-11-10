@@ -2,181 +2,185 @@
 
 @{
     ViewData["Title"] = "Fixture";
-    var category = ViewBag.Category;
+    var tournament = ViewBag.Tournament as RoboticsFixture.Models.Tournament;
     var maxRound = ViewBag.MaxRound;
     var showPodium = ViewBag.ShowPodium;
     var rounds = Model.GroupBy(m => m.Round).OrderBy(g => g.Key).ToList();
 }
 
 <div class="mb-4">
-    <div class="d-flex justify-content-between align-items-center">
-        <h1>
-            <i class="fas fa-sitemap me-2"></i> Fixture - @category
-        </h1>
-        <a asp-action="Index" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Volver
-        </a>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1><i class="fas fa-sitemap me-2"></i> Fixture - @tournament?.Name</h1>
+            <div class="mt-2">
+                <span class="badge" style="background:@(tournament?.CombatMode==RoboticsFixture.Models.Enums.CombatMode.Autonomous?"linear-gradient(135deg,#00e5ff,#0099ff)":"linear-gradient(135deg,#ff9f00,#ff7700)");color:#0a0f1f;font-size:1rem;padding:.6rem 1.2rem;">
+                    @if(tournament?.CombatMode==RoboticsFixture.Models.Enums.CombatMode.Autonomous)
+                    {
+                        <i class="fas fa-robot me-2"></i><text>Modo Autónomo (Sumo LNR)</text>
+                    }
+                    else
+                    {
+                        <i class="fas fa-gamepad me-2"></i><text>Modo Radiocontrol (Batalla Robot)</text>
+                    }
+                </span>
+                <span class="badge bg-secondary ms-2" style="font-size:1rem;padding:.6rem 1.2rem;">
+                    <i class="fas fa-tag me-2"></i>@tournament?.Category
+                </span>
+            </div>
+        </div>
+        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Volver</a>
     </div>
 </div>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">
-        <i class="fas fa-info-circle me-2"></i>
-        No se ha generado el fixture para esta categoría.
-        <a asp-action="Index" class="alert-link">Volver para generar</a>
-    </div>
+    <div class="alert alert-info">...</div>
 }
 else
 {
-    @if (showPodium)
+    if (showPodium)
     {
-        <div class="alert alert-info mb-4">
-            <i class="fas fa-trophy me-2"></i>
-            ¡El torneo ha finalizado!
-            <a asp-action="Podium" asp-route-category="@category" class="alert-link fw-bold">Ver Podio de Ganadores</a>
+        <div class="alert alert-success mb-4">
+            <i class="fas fa-trophy me-2"></i>¡El torneo ha finalizado!
+            <a asp-action="Podium" asp-route-tournamentId="@tournament?.Id" class="alert-link fw-bold">
+                Ver Podio de Ganadores
+            </a>
         </div>
     }
 
-    <div class="fixture-container">
-        @{
-            var repechajeRound0 = Model.Where(m => m.Round == 0 && m.IsRepechaje).ToList();
-            if (repechajeRound0.Any())
-            {
-                <div class="repechaje-section mb-5">
-                    <div class="repechaje-header">
-                        <i class="fas fa-random me-2"></i> REPECHAJE INICIAL
-                    </div>
-                    @foreach (var match in repechajeRound0)
+    if (tournament?.CombatMode == RoboticsFixture.Models.Enums.CombatMode.RadioControl)
+    {
+        var pendingMatches = Model.Where(m => !m.IsCompleted && m.Competitor1Id != null && m.Competitor2Id != null).ToList();
+        if (pendingMatches.Any())
+        {
+            <div class="alert alert-warning mb-4">
+                <h5><i class="fas fa-clipboard-list me-2"></i>Combates Pendientes</h5>
+                <ul class="pending-matches-list">
+                    @foreach (var pending in pendingMatches.Take(5))
                     {
-                        <div class="match-card repechaje @(match.IsCompleted ? "completed" : "")">
-                            <div class="repechaje-badge">
-                                <i class="fas fa-exclamation-triangle me-2"></i>VS EXTRA
-                            </div>
+                        <li>
+                            <strong>Ronda @pending.Round - Posición @pending.Position:</strong>
+                            @pending.Competitor1?.Name vs @pending.Competitor2?.Name
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    }
+}
 
-                            <div class="competitor-slot @(match.WinnerId == match.Competitor1Id ? "winner" : "")">
-                                <div class="competitor-info">
-                                    <i class="fas fa-robot competitor-icon"></i>
-                                    <div class="competitor-details">
-                                        <h6>@match.Competitor1?.Name</h6>
-                                        <small>@match.Competitor1?.Team</small>
-                                    </div>
-                                </div>
-                                @if (!match.IsCompleted)
-                                {
-                                    <form asp-action="SetWinner" method="post" style="display:inline;">
-                                        <input type="hidden" name="matchId" value="@match.Id" />
-                                        <input type="hidden" name="winnerId" value="@match.Competitor1Id" />
-                                        <button type="submit" class="btn btn-sm btn-success">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </form>
-                                }
-                            </div>
 
-                            <div class="match-vs">
-                                <i class="fas fa-bolt"></i> VS <i class="fas fa-bolt"></i>
-                            </div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    @if(tournament?.CombatMode==RoboticsFixture.Models.Enums.CombatMode.Autonomous)
+                    {
+                        <h6><i class="fas fa-info-circle me-2"></i>Información del Modo Autónomo:</h6>
+                        <ul class="mb-0" style="color:var(--text-muted);">
+                            <li>Los combates se simulan automáticamente al mejor de 3 asaltos</li>
+                            <li>El ganador es el primero en ganar 2 asaltos</li>
+                            <li>Las probabilidades se basan en el RatingSeed de cada robot</li>
+                            <li>Resultados reproducibles usando la semilla: <strong>@tournament.RandomSeed</strong></li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <h6><i class="fas fa-info-circle me-2"></i>Información del Modo Radiocontrol:</h6>
+                        <ul class="mb-0" style="color:var(--text-muted);">
+                            <li>Los combates requieren registro manual del juez</li>
+                            <li>Cada combate es de un solo round de 3 minutos</li>
+                            <li>Victoria por: 3 outs, inmovilización, volcado, descalificación o decisión de jueces</li>
+                            <li>El juez debe especificar el tipo de victoria y puede agregar observaciones</li>
+                        </ul>
+                    }
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="stats-box">
+                        <div class="stat-item"><i class="fas fa-layer-group me-2"></i><strong>Rondas:</strong> @maxRound</div>
+                        <div class="stat-item"><i class="fas fa-check-circle me-2"></i><strong>Completados:</strong> @Model.Count(m=>m.IsCompleted)/@Model.Count</div>
+                        <div class="stat-item"><i class="fas fa-clock me-2"></i><strong>Pendientes:</strong> @Model.Count(m=>!m.IsCompleted)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                            <div class="competitor-slot @(match.WinnerId == match.Competitor2Id ? "winner" : "")">
-                                <div class="competitor-info">
-                                    <i class="fas fa-robot competitor-icon"></i>
-                                    <div class="competitor-details">
-                                        <h6>@match.Competitor2?.Name</h6>
-                                        <small>@match.Competitor2?.Team</small>
-                                    </div>
-                                </div>
-                                @if (!match.IsCompleted)
-                                {
-                                    <form asp-action="SetWinner" method="post" style="display:inline;">
-                                        <input type="hidden" name="matchId" value="@match.Id" />
-                                        <input type="hidden" name="winnerId" value="@match.Competitor2Id" />
-                                        <button type="submit" class="btn btn-sm btn-success">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </form>
-                                }
-                            </div>
-                        </div>
+    <!-- Repechaje inicial -->
+    <!-- Repechaje inicial -->
+@{
+    var repechajeRound0 = Model.Where(m => m.Round == 0 && m.IsRepechaje).ToList();
+}
+
+@if (repechajeRound0.Any())
+{
+        <div class="repechaje-section mb-5">
+            <div class="repechaje-header"><i class="fas fa-random me-2"></i> REPECHAJE INICIAL</div>
+            @foreach(var match in repechajeRound0)
+            {
+                <div class="match-card repechaje @(match.IsCompleted?"completed":"")">
+                    <div class="repechaje-badge"><i class="fas fa-exclamation-triangle me-2"></i>VS EXTRA</div>
+                    <div class="competitor-slot @(match.WinnerId==match.Competitor1Id?"winner":"")">
+                        <div class="competitor-info"><i class="fas fa-robot competitor-icon"></i><div class="competitor-details"><h6>@match.Competitor1?.Name</h6><small>@match.Competitor1?.Team</small></div></div>
+                        @if(!match.IsCompleted&&tournament?.CombatMode==RoboticsFixture.Models.Enums.CombatMode.RadioControl)
+                        {
+                            <a asp-action="RecordResult" asp-route-matchId="@match.Id" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                        }
+                        else if(!match.IsCompleted)
+                        {
+                            <form asp-action="SetWinner" method="post" style="display:inline;">
+                                <input type="hidden" name="matchId" value="@match.Id" />
+                                <input type="hidden" name="winnerId" value="@match.Competitor1Id" />
+                                <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-check"></i></button>
+                            </form>
+                        }
+                    </div>
+
+                    <div class="match-vs"><i class="fas fa-bolt"></i> VS <i class="fas fa-bolt"></i></div>
+
+                    <div class="competitor-slot @(match.WinnerId==match.Competitor2Id?"winner":"")">
+                        <div class="competitor-info"><i class="fas fa-robot competitor-icon"></i><div class="competitor-details"><h6>@match.Competitor2?.Name</h6><small>@match.Competitor2?.Team</small></div></div>
+                        @if(!match.IsCompleted&&tournament?.CombatMode==RoboticsFixture.Models.Enums.CombatMode.RadioControl)
+                        {
+                            <a asp-action="RecordResult" asp-route-matchId="@match.Id" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                        }
+                        else if(!match.IsCompleted)
+                        {
+                            <form asp-action="SetWinner" method="post" style="display:inline;">
+                                <input type="hidden" name="matchId" value="@match.Id" />
+                                <input type="hidden" name="winnerId" value="@match.Competitor2Id" />
+                                <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-check"></i></button>
+                            </form>
+                        }
+                    </div>
+
+                    @if(match.IsCompleted&&tournament?.CombatMode==RoboticsFixture.Models.Enums.CombatMode.Autonomous&&match.RoundsPlayed>0)
+                    {
+                        <div class="match-result"><small><i class="fas fa-trophy me-2"></i>Resultado: @match.RoundsWonP1 - @match.RoundsWonP2 (@match.RoundsPlayed asaltos)</small></div>
                     }
                 </div>
             }
-        }
+        </div>
+    }
 
+    <!-- Fixture de rondas -->
+    <div class="fixture-container">
         <div class="rounds-wrapper">
-            @for (int r = 1; r <= maxRound; r++)
+            @for(int r=1;r<=maxRound;r++)
             {
-                var roundMatches = rounds.FirstOrDefault(g => g.Key == r)?.ToList() ?? new List<Match>();
-                var roundName = r == maxRound && roundMatches.Count == 1 ? "FINAL" :
-                r == maxRound - 1 && roundMatches.Count == 2 ? "SEMIFINAL" :
-                r == maxRound - 2 && roundMatches.Count == 4 ? "CUARTOS" :
-                $"RONDA {r}";
-
+                var roundMatches=rounds.FirstOrDefault(g=>g.Key==r)?.ToList()??new List<RoboticsFixture.Models.Match>();
+                var roundName=r==maxRound&&roundMatches.Count==1?"FINAL":r==maxRound-1&&roundMatches.Count==2?"SEMIFINAL":r==maxRound-2&&roundMatches.Count==4?"CUARTOS":$"RONDA {r}";
                 <div class="round-column">
-                    <div class="round-header">
-                        <i class="fas fa-layer-group me-2"></i>@roundName
-                    </div>
-
-                    @foreach (var match in roundMatches)
+                    <div class="round-header"><i class="fas fa-layer-group me-2"></i>@roundName</div>
+                    @foreach(var match in roundMatches)
                     {
-                        <div class="match-card @(match.IsCompleted ? "completed" : "") @(match.IsRepechaje ? "repechaje" : "")">
-                            @if (match.IsCompleted && !match.IsRepechaje)
-                            {
-                                <div class="winner-badge">
-                                    <i class="fas fa-trophy"></i>
-                                </div>
-                            }
-
-                            @if (match.IsRepechaje)
-                            {
-                                <div class="repechaje-badge">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>REPECHAJE R@r
-                                </div>
-                            }
-
-                            <div class="competitor-slot @(match.WinnerId == match.Competitor1Id ? "winner" : "")">
-                                <div class="competitor-info">
-                                    <i class="fas fa-robot competitor-icon"></i>
-                                    <div class="competitor-details">
-                                        <h6>@(match.Competitor1?.Name ?? "TBD")</h6>
-                                        <small>@match.Competitor1?.Team</small>
-                                    </div>
-                                </div>
-                                @if (!match.IsCompleted && match.Competitor1 != null && match.Competitor2 != null)
-                                {
-                                    <form asp-action="SetWinner" method="post" style="display:inline;">
-                                        <input type="hidden" name="matchId" value="@match.Id" />
-                                        <input type="hidden" name="winnerId" value="@match.Competitor1Id" />
-                                        <button type="submit" class="btn btn-sm btn-success">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </form>
-                                }
-                            </div>
-
-                            <div class="match-vs">
-                                <i class="fas fa-bolt"></i> VS <i class="fas fa-bolt"></i>
-                            </div>
-
-                            <div class="competitor-slot @(match.WinnerId == match.Competitor2Id ? "winner" : "")">
-                                <div class="competitor-info">
-                                    <i class="fas fa-robot competitor-icon"></i>
-                                    <div class="competitor-details">
-                                        <h6>@(match.Competitor2?.Name ?? "TBD")</h6>
-                                        <small>@match.Competitor2?.Team</small>
-                                    </div>
-                                </div>
-                                @if (!match.IsCompleted && match.Competitor1 != null && match.Competitor2 != null)
-                                {
-                                    <form asp-action="SetWinner" method="post" style="display:inline;">
-                                        <input type="hidden" name="matchId" value="@match.Id" />
-                                        <input type="hidden" name="winnerId" value="@match.Competitor2Id" />
-                                        <button type="submit" class="btn btn-sm btn-success">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </form>
-                                }
-                            </div>
+                        <div class="match-card @(match.IsCompleted?"completed":"") @(match.IsRepechaje?"repechaje":"")">
+                            @if(match.IsCompleted&&!match.IsRepechaje){<div class="winner-badge"><i class="fas fa-trophy"></i></div>}
+                            @if(match.IsRepechaje){<div class="repechaje-badge"><i class="fas fa-exclamation-triangle me-2"></i>REPECHAJE R@r</div>}
+                            <div class="competitor-slot @(match.WinnerId==match.Competitor1Id?"winner":"")"><div class="competitor-info"><i class="fas fa-robot competitor-icon"></i><div class="competitor-details"><h6>@(match.Competitor1?.Name??"TBD")</h6><small>@match.Competitor1?.Team</small></div></div>@if(!match.IsCompleted&&match.Competitor1!=null&&match.Competitor2!=null){@if(tournament?.CombatMode==RoboticsFixture.Models.Enums.CombatMode.RadioControl){<a asp-action="RecordResult" asp-route-matchId="@match.Id" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>}else{<span class="badge bg-info">Auto</span>}}</div>
+                            <div class="match-vs"><i class="fas fa-bolt"></i> VS <i class="fas fa-bolt"></i></div>
+                            <div class="competitor-slot @(match.WinnerId==match.Competitor2Id?"winner":"")"><div class="competitor-info"><i class="fas fa-robot competitor-icon"></i><div class="competitor-details"><h6>@(match.Competitor2?.Name??"TBD")</h6><small>@match.Competitor2?.Team</small></div></div></div>
+                            @if(match.IsCompleted){<div class="match-result">@if(tournament?.CombatMode==RoboticsFixture.Models.Enums.CombatMode.Autonomous&&match.RoundsPlayed>0){<small><i class="fas fa-chart-bar me-2"></i>Asaltos: @match.RoundsWonP1 - @match.RoundsWonP2 (@match.RoundsPlayed rounds)</small>}else if(tournament?.CombatMode==RoboticsFixture.Models.Enums.CombatMode.RadioControl&&match.OutcomeType.HasValue){<small><i class="fas fa-clipboard-check me-2"></i>@switch(match.OutcomeType){case RoboticsFixture.Models.Enums.OutcomeType.ThreeOuts:<text>Victoria por 3 Outs</text>;break;case RoboticsFixture.Models.Enums.OutcomeType.Immobilization:<text>Victoria por Inmovilización</text>;break;case RoboticsFixture.Models.Enums.OutcomeType.Overturn:<text>Victoria por Volcado</text>;break;case RoboticsFixture.Models.Enums.OutcomeType.Disqualification:<text>Victoria por Descalificación</text>;break;case RoboticsFixture.Models.Enums.OutcomeType.JudgeDecision:<text>Victoria por Decisión de Jueces</text>;break;}}</small>}@if(!string.IsNullOrEmpty(match.OutcomeDescription)){<br><small class="text-muted"><i class="fas fa-comment-alt me-2"></i>@match.OutcomeDescription</small>}</div>}
                         </div>
                     }
                 </div>
@@ -185,53 +189,4 @@ else
     </div>
 }
 
-<style>
-    .repechaje-section {
-        background: linear-gradient(135deg, rgba(255, 159, 0, 0.1), rgba(255, 71, 87, 0.1));
-        border: 3px solid #ff9f00;
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 10px 40px rgba(255, 159, 0, 0.4);
-    }
-
-    .repechaje-header {
-        text-align: center;
-        font-size: 2rem;
-        font-weight: 900;
-        color: #ff9f00;
-        font-family: 'Orbitron', sans-serif;
-        text-shadow: 0 0 20px rgba(255, 159, 0, 0.8);
-        margin-bottom: 2rem;
-        animation: repechajeGlow 2s ease-in-out infinite;
-    }
-
-    @@keyframes repechajeGlow {
-        0%, 100% { text-shadow: 0 0 20px rgba(255, 159, 0, 0.8); }
-        50% { text-shadow: 0 0 30px rgba(255, 159, 0, 1), 0 0 40px rgba(255, 159, 0, 0.8); }
-    }
-
-    .match-card.repechaje {
-        border-color: #ff9f00;
-        background: linear-gradient(135deg, rgba(255, 159, 0, 0.15), rgba(255, 71, 87, 0.1));
-        box-shadow: 0 8px 30px rgba(255, 159, 0, 0.4);
-        position: relative;
-    }
-
-    .repechaje-badge {
-        background: linear-gradient(135deg, #ff9f00, #ff7700);
-        color: #0a0f1f;
-        padding: 0.6rem 1.2rem;
-        border-radius: 25px;
-        font-weight: 900;
-        font-family: 'Orbitron', sans-serif;
-        text-align: center;
-        margin-bottom: 1rem;
-        box-shadow: 0 6px 20px rgba(255, 159, 0, 0.5);
-        animation: badgePulse 2s ease-in-out infinite;
-    }
-
-    .repechaje-badge i {
-        color: #ffffff;
-        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
-    }
-</style>
+<style>.stats-box{background:rgba(0,229,255,.1);border-left:3px solid var(--primary-cyan);padding:1rem;border-radius:8px}.stat-item{color:var(--text-muted);margin-bottom:.5rem;font-size:.95rem}.stat-item:last-child{margin-bottom:0}.stat-item strong{color:var(--text-primary)}.pending-matches-list{list-style:none;padding:0;margin-top:1rem}.pending-matches-list li{background:rgba(255,255,255,.05);padding:.8rem;margin-bottom:.5rem;border-radius:8px;border-left:3px solid var(--secondary-orange);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap}.match-result{margin-top:1rem;padding:.8rem;background:rgba(0,229,255,.1);border-radius:8px;text-align:center;border-top:2px solid var(--primary-cyan)}.match-result small{color:var(--text-muted);display:block;line-height:1.6}.repechaje-section{background:linear-gradient(135deg,rgba(255,159,0,.1),rgba(255,71,87,.1));border:3px solid #ff9f00;border-radius:20px;padding:2rem;box-shadow:0 10px 40px rgba(255,159,0,.4)}.repechaje-header{text-align:center;font-size:2rem;font-weight:900;color:#ff9f00;font-family:'Orbitron',sans-serif;text-shadow:0 0 20px rgba(255,159,0,.8);margin-bottom:2rem;animation:repechajeGlow 2s ease-in-out infinite}@@keyframes repechajeGlow{0%,100%{text-shadow:0 0 20px rgba(255,159,0,.8)}50%{text-shadow:0 0 30px rgba(255,159,0,1),0 0 40px rgba(255,159,0,.8)}}.match-card.repechaje{border-color:#ff9f00;background:linear-gradient(135deg,rgba(255,159,0,.15),rgba(255,71,87,.1));box-shadow:0 8px 30px rgba(255,159,0,.4);position:relative}.repechaje-badge{background:linear-gradient(135deg,#ff9f00,#ff7700);color:#0a0f1f;padding:.6rem 1.2rem;border-radius:25px;font-weight:900;font-family:'Orbitron',sans-serif;text-align:center;margin-bottom:1rem;box-shadow:0 6px 20px rgba(255,159,0,.5);animation:badgePulse 2s ease-in-out infinite}.repechaje-badge i{color:#fff;filter:drop-shadow(0 0 8px rgba(255,255,255,.8))}@@keyframes badgePulse{0%,100%{box-shadow:0 6px 25px rgba(255,159,0,.5)}50%{box-shadow:0 10px 40px rgba(255,159,0,.8)}}</style>

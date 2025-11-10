@@ -1,0 +1,258 @@
+﻿@model RoboticsFixture.Models.Match
+
+@{
+    ViewData["Title"] = "Registrar Resultado";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <i class="fas fa-clipboard-check me-2"></i> Registrar Resultado del Combate - Modo Radiocontrol
+            </div>
+            <div class="card-body">
+                <!-- Información del combate -->
+                <div class="alert alert-info mb-4">
+                    <h5><i class="fas fa-info-circle me-2"></i>Información del Combate</h5>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <strong>Torneo:</strong> @Model.Tournament?.Name<br>
+                            <strong>Ronda:</strong> @Model.Round<br>
+                            <strong>Posición:</strong> @Model.Position
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Modo:</strong> <span class="badge bg-warning text-dark">🎮 Radiocontrol</span><br>
+                            <strong>Estado:</strong> <span class="badge bg-danger">Pendiente</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Competidores -->
+                <div class="row mb-4">
+                    <div class="col-md-5">
+                        <div class="competitor-card competitor-1">
+                            <div class="competitor-header">
+                                <i class="fas fa-robot"></i> Competidor 1
+                            </div>
+                            <div class="competitor-body">
+                                <h4>@Model.Competitor1?.Name</h4>
+                                <p class="text-muted">@Model.Competitor1?.Team</p>
+                                @if (Model.Competitor1?.RatingSeed != null)
+                                {
+                                    <small>Nivel: @Model.Competitor1.RatingSeed / 100</small>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-center justify-content-center">
+                        <div class="vs-badge">
+                            <i class="fas fa-bolt"></i> VS <i class="fas fa-bolt"></i>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5">
+                        <div class="competitor-card competitor-2">
+                            <div class="competitor-header">
+                                <i class="fas fa-robot"></i> Competidor 2
+                            </div>
+                            <div class="competitor-body">
+                                <h4>@Model.Competitor2?.Name</h4>
+                                <p class="text-muted">@Model.Competitor2?.Team</p>
+                                @if (Model.Competitor2?.RatingSeed != null)
+                                {
+                                    <small>Nivel: @Model.Competitor2.RatingSeed / 100</small>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario de resultado -->
+                <form asp-action="RecordResult" method="post">
+                    <input type="hidden" name="MatchId" value="@Model.Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-trophy me-2"></i>Ganador del Combate
+                        </label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check winner-option">
+                                    <input class="form-check-input" type="radio" name="WinnerId" id="winner1" value="@Model.Competitor1Id" required>
+                                    <label class="form-check-label" for="winner1">
+                                        <i class="fas fa-check-circle me-2"></i>@Model.Competitor1?.Name
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check winner-option">
+                                    <input class="form-check-input" type="radio" name="WinnerId" id="winner2" value="@Model.Competitor2Id" required>
+                                    <label class="form-check-label" for="winner2">
+                                        <i class="fas fa-check-circle me-2"></i>@Model.Competitor2?.Name
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-star me-2"></i>Tipo de Victoria
+                        </label>
+                        <select name="OutcomeType" class="form-select">
+                            <option value="">-- Seleccione el tipo de victoria --</option>
+                            <option value="0">🚫 3 Outs (tres salidas del cuadrilátero)</option>
+                            <option value="1">⏱️ Inmovilización (conteo de 10 segundos)</option>
+                            <option value="2">🔄 Volcado del oponente</option>
+                            <option value="3">❌ Descalificación del oponente</option>
+                            <option value="4">⚖️ Decisión de jueces (puntos)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-comment-alt me-2"></i>Descripción del Combate (Opcional)
+                        </label>
+                        <textarea name="Description" class="form-control" rows="4" placeholder="Ej: Victoria por 3 outs consecutivos en el minuto 2:15. El robot azul fue sacado del cuadrilátero en tres ocasiones..."></textarea>
+                        <small class="form-text text-muted">
+                            Describe los momentos clave del combate, estrategias utilizadas, y detalles relevantes.
+                        </small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="fas fa-user-tie me-2"></i>Nombre del Juez
+                        </label>
+                        <input type="text" name="JudgeName" class="form-control" placeholder="Ingrese su nombre" />
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-save me-2"></i>Registrar Resultado
+                        </button>
+                        <a asp-action="Fixture" asp-route-tournamentId="@Model.TournamentId" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Resaltar la tarjeta del ganador seleccionado
+        document.querySelectorAll('input[name="WinnerId"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('.competitor-card').forEach(card => {
+                    card.classList.remove('winner-selected');
+                });
+
+                const selectedCard = this.closest('.col-md-6').querySelector('.competitor-card') ||
+                                   this.closest('.col-md-5').querySelector('.competitor-card');
+                if (selectedCard) {
+                    selectedCard.classList.add('winner-selected');
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    .competitor-card {
+        background: var(--bg-card);
+        border: 2px solid var(--border-primary);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: var(--transition);
+        text-align: center;
+    }
+
+        .competitor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-card-hover);
+        }
+
+        .competitor-card.winner-selected {
+            border-color: var(--success-green);
+            background: rgba(0, 255, 136, 0.1);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+        }
+
+    .competitor-header {
+        color: var(--primary-cyan);
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .competitor-body h4 {
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-family: 'Orbitron', sans-serif;
+    }
+
+    .vs-badge {
+        background: linear-gradient(135deg, var(--secondary-orange), #ff7700);
+        color: #0a0f1f;
+        padding: 1.5rem;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        font-weight: 900;
+        text-align: center;
+        box-shadow: 0 8px 30px rgba(255, 159, 0, 0.5);
+        animation: pulseBadge 2s ease-in-out infinite;
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    @@keyframes pulseBadge {
+        0%, 100%
+
+    {
+        box-shadow: 0 8px 30px rgba(255, 159, 0, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 12px 40px rgba(255, 159, 0, 0.8);
+    }
+
+    }
+
+    .winner-option {
+        background: var(--bg-dark-secondary);
+        padding: 1.2rem;
+        border-radius: 12px;
+        border: 2px solid transparent;
+        transition: var(--transition);
+        cursor: pointer;
+    }
+
+        .winner-option:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+        }
+
+        .winner-option input:checked + label {
+            color: var(--success-green);
+            font-weight: 700;
+        }
+
+    .form-check-input:checked {
+        background-color: var(--success-green);
+        border-color: var(--success-green);
+    }
+
+    .form-select option {
+        padding: 0.8rem;
+    }
+</style>

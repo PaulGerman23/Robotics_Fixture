@@ -107,39 +107,66 @@
     </div>
 </div>
 
-@@section Scripts {
+@section Scripts {
     <script>
         // Solo crear confetti si hay al menos un ganador
         @if (winner != null)
         {
-            <text>
-            for (let i = 0; i < 100; i++) {
-                setTimeout(() => createConfetti(), i * 30);
-            }
+                // Usa @: para que Razor no corte el bloque
+                @:for (let i = 0; i < 100; i++) {
+                @:    setTimeout(() => createConfetti(), i * 30);
+                @:}
 
-            function createConfetti() {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + '%';
-                confetti.style.animationDelay = Math.random() * 2 + 's';
-                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                @:function createConfetti() {
+                @:    const confetti = document.createElement('div');
+                @:    confetti.className = 'confetti';
+                @:    confetti.style.left = Math.random() * 100 + '%';
+                @:    confetti.style.animationDelay = Math.random() * 2 + 's';
+                @:    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                @:    const colors = ['#00e5ff', '#ffd700', '#ff9f00', '#a855f7', '#00ff88', '#c0c0c0', '#cd7f32'];
+                @:    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                @:    confetti.style.width = (Math.random() * 10 + 5) + 'px';
+                @:    confetti.style.height = confetti.style.width;
+                @:    document.querySelector('.podium-screen').appendChild(confetti);
+                @:    setTimeout(() => confetti.remove(), 5000);
+                @:}
 
-                const colors = ['#00e5ff', '#ffd700', '#ff9f00', '#a855f7', '#00ff88', '#c0c0c0', '#cd7f32'];
-                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.width = (Math.random() * 10 + 5) + 'px';
-                confetti.style.height = confetti.style.width;
-
-                document.querySelector('.podium-screen').appendChild(confetti);
-
-                setTimeout(() => confetti.remove(), 5000);
-            }
-
-            setInterval(() => {
-                for (let i = 0; i < 5; i++) {
-                    createConfetti();
-                }
-            }, 500);
-            </text>
+                @:setInterval(() => {
+                @:    for (let i = 0; i < 5; i++) createConfetti();
+                @:}, 500);
         }
     </script>
 }
+
+
+<style>
+/* 🔹 Estilos para el confetti */
+.confetti {
+    position: absolute;
+    top: -10px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    animation-name: fall;
+    animation-timing-function: linear;
+}
+
+/* 🔹 Animación CSS real */
+<style >
+@@keyframes fall {
+    0%
+
+{
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+}
+
+100% {
+    transform: translateY(500px) rotate(720deg);
+    opacity: 0;
+}
+
+}
+</style>
+
+

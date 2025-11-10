@@ -2,13 +2,14 @@
 
 @{
     ViewData["Title"] = "Torneos";
+    var tournaments = ViewBag.Tournaments as List<RoboticsFixture.Models.Tournament> ?? new List<RoboticsFixture.Models.Tournament>();
 }
 
 <div class="mb-4">
     <h1>
         <i class="fas fa-trophy me-2"></i> Gestión de Torneos
     </h1>
-    <p style="color: var(--text-muted); font-weight: 500;">Selecciona una categoría para generar o ver el fixture</p>
+    <p style="color: var(--text-muted); font-weight: 500;">Selecciona una categoría para crear o gestionar torneos</p>
 </div>
 
 @if (TempData["Error"] != null)
@@ -20,35 +21,103 @@
     </div>
 }
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
 <div class="row g-4">
     @if (Model.Any())
     {
         @foreach (var category in Model)
         {
+            var categoryTournaments = tournaments.Where(t => t.Category == category && t.IsActive).ToList();
+            var hasActiveTournament = categoryTournaments.Any();
+            var activeTournament = categoryTournaments.FirstOrDefault();
+
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="mb-4">
-                            <i class="fas fa-robot"></i>
+                    <div class="card-body">
+                        <!-- Icono y Categoría -->
+                        <div class="text-center mb-4">
+                            <i class="fas fa-robot" style="font-size: 3.5rem;"></i>
+                            <h4 class="card-title mt-3" style="color: var(--text-primary); font-weight: 700;">@category</h4>
                         </div>
-                        <h4 class="card-title mb-4" style="color: var(--text-primary); font-weight: 700;">@category</h4>
+
+                        <!-- Información del torneo activo -->
+                        @if (hasActiveTournament)
+                        {
+                            <div class="alert alert-info mb-3">
+                                <strong><i class="fas fa-info-circle me-2"></i>Torneo Activo:</strong><br>
+                                <span style="font-size: 1.1rem;">@activeTournament.Name</span><br>
+                                <span class="badge mt-2" style="background: @(activeTournament.CombatMode == RoboticsFixture.Models.Enums.CombatMode.Autonomous ? "linear-gradient(135deg, #00e5ff, #0099ff)" : "linear-gradient(135deg, #ff9f00, #ff7700)"); color: #0a0f1f; font-size: 0.9rem;">
+                                    @if (activeTournament.CombatMode == RoboticsFixture.Models.Enums.CombatMode.Autonomous)
+                                    {
+                                        <i class="fas fa-robot me-1"></i>
+                        
+                                        <text>Modo Autónomo</text>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-gamepad me-1"></i>
+                        
+                                        <text>Modo Radiocontrol</text>
+                                    }
+                                </span>
+                            </div>
+                        }
+
+                        <!-- Botones de acción -->
                         <div class="d-grid gap-3">
-                            <a href="@Url.Action("Fixture", new { category })" class="btn btn-primary">
-                                <i class="fas fa-eye"></i> Ver Fixture
+                            <!-- Ver Fixture (si hay torneo activo) -->
+                            @if (hasActiveTournament)
+                            {
+                                <a href="@Url.Action("Fixture", new { tournamentId = activeTournament.Id })" class="btn btn-primary">
+                                    <i class="fas fa-eye"></i> Ver Fixture
+                                </a>
+                            }
+
+                            <!-- Crear Nuevo Torneo -->
+                            <a href="@Url.Action("CreateTournament", new { category })" class="btn btn-success">
+                                <i class="fas fa-plus-circle"></i> @(hasActiveTournament ? "Crear Nuevo Torneo" : "Crear Torneo")
                             </a>
-                            <form asp-action="GenerateFixture" method="post">
-                                <input type="hidden" name="category" value="@category" />
-                                <button type="submit" class="btn btn-success w-100">
-                                    <i class="fas fa-random"></i> Generar Nuevo
-                                </button>
-                            </form>
-                            <form asp-action="ResetTournament" method="post" onsubmit="return confirm('¿Está seguro de reiniciar el torneo?');">
-                                <input type="hidden" name="category" value="@category" />
-                                <button type="submit" class="btn btn-danger w-100">
-                                    <i class="fas fa-redo"></i> Reiniciar
-                                </button>
-                            </form>
+
+                            <!-- Generar Fixture Rápido (sin modo específico, usa Autónomo por defecto) -->
+                            @if (!hasActiveTournament)
+                            {
+                                <form asp-action="GenerateFixture" method="post">
+                                    <input type="hidden" name="category" value="@category" />
+                                    <button type="submit" class="btn btn-warning w-100">
+                                        <i class="fas fa-bolt"></i> Generar Rápido (Autónomo)
+                                    </button>
+                                </form>
+                            }
+
+                            <!-- Reiniciar Torneo (si hay torneo activo) -->
+                            @if (hasActiveTournament)
+                            {
+                                <form asp-action="ResetTournament" method="post" onsubmit="return confirm('¿Está seguro de reiniciar el torneo? Se perderán todos los resultados.');">
+                                    <input type="hidden" name="tournamentId" value="@activeTournament.Id" />
+                                    <button type="submit" class="btn btn-danger w-100">
+                                        <i class="fas fa-redo"></i> Reiniciar Torneo
+                                    </button>
+                                </form>
+                            }
                         </div>
+
+                        <!-- Información adicional -->
+                        @if (hasActiveTournament && !string.IsNullOrEmpty(activeTournament.Description))
+                        {
+                            <div class="mt-3 p-2" style="background: rgba(0, 229, 255, 0.05); border-left: 3px solid var(--primary-cyan); border-radius: 8px;">
+                                <small style="color: var(--text-muted);">
+                                    <i class="fas fa-quote-left me-2"></i>@activeTournament.Description
+                                </small>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -59,8 +128,98 @@
         <div class="col-12">
             <div class="alert alert-info">
                 <i class="fas fa-info-circle me-2"></i>
-                No hay categorías disponibles. Agregue competidores primero.
+                No hay categorías disponibles. Agregue competidores primero en la sección <a asp-controller="Competitors" asp-action="Index" class="alert-link">"Competidores"</a>.
             </div>
         </div>
     }
 </div>
+
+<!-- Información sobre los modos de combate -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i> Modos de Combate Disponibles
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mode-info-box autonomous">
+                            <h5><i class="fas fa-robot me-2"></i>Modo Autónomo (Sumo LNR)</h5>
+                            <ul class="mode-features">
+                                <li><i class="fas fa-check-circle me-2"></i>Robots completamente autónomos</li>
+                                <li><i class="fas fa-check-circle me-2"></i>Combates al mejor de 3 asaltos</li>
+                                <li><i class="fas fa-check-circle me-2"></i>Simulación automática de resultados</li>
+                                <li><i class="fas fa-check-circle me-2"></i>Basado en nivel de habilidad (RatingSeed)</li>
+                                <li><i class="fas fa-check-circle me-2"></i>Avance automático de rondas</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mode-info-box radiocontrol">
+                            <h5><i class="fas fa-gamepad me-2"></i>Modo Radiocontrol (Batalla Robot)</h5>
+                            <ul class="mode-features">
+                                <li><i class="fas fa-check-circle me-2"></i>Robots controlados a distancia</li>
+                                <li><i class="fas fa-check-circle me-2"></i>Combate de un solo round (3 minutos)</li>
+                                <li><i class="fas fa-check-circle me-2"></i>Registro manual por el juez</li>
+                                <li><i class="fas fa-check-circle me-2"></i>5 tipos de victoria diferentes</li>
+                                <li><i class="fas fa-check-circle me-2"></i>Control total sobre resultados</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .mode-info-box {
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 2px solid;
+        height: 100%;
+        transition: var(--transition);
+    }
+
+        .mode-info-box.autonomous {
+            border-color: var(--primary-cyan);
+            background: rgba(0, 229, 255, 0.05);
+        }
+
+        .mode-info-box.radiocontrol {
+            border-color: var(--secondary-orange);
+            background: rgba(255, 159, 0, 0.05);
+        }
+
+        .mode-info-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .mode-info-box h5 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+    .mode-features {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .mode-features li {
+            color: var(--text-muted);
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .mode-features i {
+            color: var(--success-green);
+        }
+
+    .alert-info {
+        border-left: 4px solid var(--primary-cyan);
+    }
+</style>

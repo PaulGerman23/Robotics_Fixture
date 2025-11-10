@@ -1,14 +1,19 @@
+// Program.cs
 using Microsoft.EntityFrameworkCore;
 using RoboticsFixture.Data;
+using RoboticsFixture.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Añadido: Configuración del DbContext
+// Configurar DbContext con SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Registrar el servicio de simulación de combates
+builder.Services.AddScoped<ICombatSimulationService, CombatSimulationService>();
 
 var app = builder.Build();
 

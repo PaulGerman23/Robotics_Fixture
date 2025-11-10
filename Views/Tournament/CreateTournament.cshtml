@@ -1,0 +1,118 @@
+﻿@model RoboticsFixture.Models.DTOs.CreateTournamentDto
+
+@{
+    ViewData["Title"] = "Crear Torneo";
+    var category = ViewBag.Category as string;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-trophy me-2"></i> Crear Nuevo Torneo
+            </div>
+            <div class="card-body">
+                <form asp-action="CreateTournament" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">
+                            <i class="fas fa-heading me-2"></i>Nombre del Torneo
+                        </label>
+                        <input asp-for="Name" class="form-control" placeholder="Ej: Torneo Nacional 2024" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Category" class="form-label">
+                            <i class="fas fa-tag me-2"></i>Categoría
+                        </label>
+                        <input asp-for="Category" class="form-control" value="@category" readonly />
+                        <span asp-validation-for="Category" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CombatMode" class="form-label">
+                            <i class="fas fa-gamepad me-2"></i>Modo de Combate
+                        </label>
+                        <select asp-for="CombatMode" class="form-select">
+                            <option value="0">🤖 Autónomo (Sumo LNR)</option>
+                            <option value="1">🎮 Radiocontrol (Batalla Robot)</option>
+                        </select>
+                        <span asp-validation-for="CombatMode" class="text-danger"></span>
+                        <small class="form-text text-muted d-block mt-2">
+                            <strong>Autónomo:</strong> Robots completamente autónomos, combates al mejor de 3 asaltos, ganador determinado automáticamente.<br>
+                            <strong>Radiocontrol:</strong> Robots controlados a distancia, victoria por 3 outs, inmovilización o volcado, resultados registrados manualmente.
+                        </small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label">
+                            <i class="fas fa-align-left me-2"></i>Descripción (Opcional)
+                        </label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Descripción del torneo..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> Crear Torneo y Generar Fixture
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Mostrar información detallada al cambiar el modo de combate
+        document.querySelector('select[name="CombatMode"]').addEventListener('change', function() {
+            const mode = this.value;
+            const infoBox = document.querySelector('.form-text');
+
+            if (mode === '0') { // Autónomo
+                infoBox.innerHTML = `
+                    <strong>🤖 Modo Autónomo (Sumo LNR):</strong><br>
+                    • Robots completamente autónomos (sin control directo)<br>
+                    • Combates al mejor de 3 asaltos de hasta 3 minutos cada uno<br>
+                    • Ganador determinado automáticamente por simulación<br>
+                    • Basado en puntos Yuhkoh y habilidad del robot (RatingSeed)<br>
+                    • Avance automático de rondas
+                `;
+            } else { // Radiocontrol
+                infoBox.innerHTML = `
+                    <strong>🎮 Modo Radiocontrol (Batalla Robot):</strong><br>
+                    • Robots controlados a distancia (radiocontrol)<br>
+                    • Combate de un solo round de 3 minutos<br>
+                    • Victoria por: 3 outs, inmovilización (conteo de 10), volcado o descalificación<br>
+                    • Resultados registrados manualmente por el juez<br>
+                    • Control total sobre el resultado de cada combate
+                `;
+            }
+        });
+    </script>
+}
+
+<style>
+    .form-text {
+        background: rgba(0, 229, 255, 0.1);
+        border-left: 3px solid var(--primary-cyan);
+        padding: 1rem;
+        border-radius: 8px;
+        color: var(--text-muted);
+    }
+
+    .form-select option {
+        padding: 1rem;
+        font-size: 1.1rem;
+    }
+</style>
