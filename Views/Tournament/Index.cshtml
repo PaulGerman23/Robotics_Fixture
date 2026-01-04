@@ -35,92 +35,109 @@
     {
         @foreach (var category in Model)
         {
-            var categoryTournaments = tournaments.Where(t => t.Category == category && t.IsActive).ToList();
-            var hasActiveTournament = categoryTournaments.Any();
-            var activeTournament = categoryTournaments.FirstOrDefault();
+            var categoryTournaments = tournaments.Where(t => t.Category == category && t.IsActive).OrderByDescending(t => t.CreatedDate).ToList();
 
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <!-- Icono y Categoría -->
-                        <div class="text-center mb-4">
-                            <i class="fas fa-robot" style="font-size: 3.5rem;"></i>
-                            <h4 class="card-title mt-3" style="color: var(--text-primary); font-weight: 700;">@category</h4>
-                        </div>
-
-                        <!-- Información del torneo activo -->
-                        @if (hasActiveTournament)
-                        {
-                            <div class="alert alert-info mb-3">
-                                <strong><i class="fas fa-info-circle me-2"></i>Torneo Activo:</strong><br>
-                                <span style="font-size: 1.1rem;">@activeTournament.Name</span><br>
-                                <span class="badge mt-2" style="background: @(activeTournament.CombatMode == RoboticsFixture.Models.Enums.CombatMode.Autonomous ? "linear-gradient(135deg, #00e5ff, #0099ff)" : "linear-gradient(135deg, #ff9f00, #ff7700)"); color: #0a0f1f; font-size: 0.9rem;">
-                                    @if (activeTournament.CombatMode == RoboticsFixture.Models.Enums.CombatMode.Autonomous)
-                                    {
-                                        <i class="fas fa-robot me-1"></i>
-                        
-                                        <text>Modo Autónomo</text>
-                                    }
-                                    else
-                                    {
-                                        <i class="fas fa-gamepad me-1"></i>
-                        
-                                        <text>Modo Radiocontrol</text>
-                                    }
-                                </span>
+            @if (categoryTournaments.Any())
+            {
+                @foreach (var tournament in categoryTournaments)
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="scifi-card h-100">
+                            <div class="scifi-card-header">
+                                <i class="fas fa-robot scifi-card-icon"></i>
+                                <h4 class="scifi-card-title">@category - @tournament.Name</h4>
                             </div>
-                        }
+                            
+                            <div class="scifi-card-body">
+                                <div class="scifi-stats-grid">
+                                    <div class="scifi-stat-item">
+                                        <span class="scifi-stat-label">MODO:</span>
+                                        <span class="scifi-stat-value">
+                                            @if (tournament.CombatMode == RoboticsFixture.Models.Enums.CombatMode.Autonomous)
+                                            {
+                                                <text>AUTÓNOMO</text> <i class="fas fa-robot ms-1"></i>
+                                            }
+                                            else
+                                            {
+                                                <text>RADIOCONTROL</text> <i class="fas fa-gamepad ms-1"></i>
+                                            }
+                                        </span>
+                                    </div>
+                                    <div class="scifi-stat-item">
+                                        <span class="scifi-stat-label">ESTADO:</span>
+                                        <span class="scifi-stat-value">
+                                            ACTIVO <span class="status-dot ms-1"></span>
+                                        </span>
+                                    </div>
+                                    <div class="scifi-stat-item">
+                                        <span class="scifi-stat-label">FECHA:</span>
+                                        <span class="scifi-stat-value">
+                                            @tournament.CreatedDate.ToString("MMM yyyy").ToUpper() <i class="fas fa-calendar-alt ms-1"></i>
+                                        </span>
+                                    </div>
+                                </div>
 
-                        <!-- Botones de acción -->
-                        <div class="d-grid gap-3">
-                            <!-- Ver Fixture (si hay torneo activo) -->
-                            @if (hasActiveTournament)
-                            {
-                                <a href="@Url.Action("Fixture", new { tournamentId = activeTournament.Id })" class="btn btn-primary">
-                                    <i class="fas fa-eye"></i> Ver Fixture
+                                <a href="@Url.Action("Fixture", new { tournamentId = tournament.Id })" class="scifi-btn-main mb-3">
+                                    VER FIXTURE <i class="fas fa-eye"></i>
                                 </a>
-                            }
+                            </div>
 
-                            <!-- Crear Nuevo Torneo -->
-                            <a href="@Url.Action("CreateTournament", new { category })" class="btn btn-success">
-                                <i class="fas fa-plus-circle"></i> @(hasActiveTournament ? "Crear Nuevo Torneo" : "Crear Torneo")
-                            </a>
+                            <div class="scifi-card-footer">
+                                <a href="#" class="scifi-action-btn">
+                                    <i class="fas fa-edit"></i> EDITAR
+                                </a>
+                                <form asp-action="ResetTournament" method="post" onsubmit="return confirm('¿Está seguro de reiniciar el torneo? Se perderán todos los resultados.');" style="display:inline;">
+                                    <input type="hidden" name="tournamentId" value="@tournament.Id" />
+                                    <button type="submit" class="scifi-action-btn">
+                                        <i class="fas fa-redo"></i> REINICIAR
+                                    </button>
+                                </form>
+                                <form asp-action="Delete" method="post" onsubmit="return confirm('¿Está seguro de eliminar este torneo?');" style="display:inline;">
+                                    <input type="hidden" name="id" value="@tournament.Id" />
+                                    <button type="submit" class="scifi-action-btn">
+                                        <i class="fas fa-trash"></i> ELIMINAR
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <!-- Tarjeta para crear torneo cuando no hay torneos activos en esta categoría -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <!-- Icono y Categoría -->
+                            <div class="text-center mb-4">
+                                <h4 class="card-title" style="color: var(--text-primary); font-weight: 700;">@category</h4>
+                            </div>
 
-                            <!-- Generar Fixture Rápido (sin modo específico, usa Autónomo por defecto) -->
-                            @if (!hasActiveTournament)
-                            {
+                            <div class="alert alert-secondary mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                No hay torneos activos en esta categoría
+                            </div>
+
+                            <!-- Botones de acción -->
+                            <div class="d-grid gap-3">
+                                <!-- Crear Nuevo Torneo -->
+                                <a href="@Url.Action("CreateTournament", new { category })" class="btn btn-success">
+                                    <i class="fas fa-plus-circle"></i> Crear Torneo
+                                </a>
+
+                                <!-- Generar Fixture Rápido (sin modo específico, usa Autónomo por defecto) -->
                                 <form asp-action="GenerateFixture" method="post">
                                     <input type="hidden" name="category" value="@category" />
                                     <button type="submit" class="btn btn-warning w-100">
                                         <i class="fas fa-bolt"></i> Generar Rápido (Autónomo)
                                     </button>
                                 </form>
-                            }
-
-                            <!-- Reiniciar Torneo (si hay torneo activo) -->
-                            @if (hasActiveTournament)
-                            {
-                                <form asp-action="ResetTournament" method="post" onsubmit="return confirm('¿Está seguro de reiniciar el torneo? Se perderán todos los resultados.');">
-                                    <input type="hidden" name="tournamentId" value="@activeTournament.Id" />
-                                    <button type="submit" class="btn btn-danger w-100">
-                                        <i class="fas fa-redo"></i> Reiniciar Torneo
-                                    </button>
-                                </form>
-                            }
-                        </div>
-
-                        <!-- Información adicional -->
-                        @if (hasActiveTournament && !string.IsNullOrEmpty(activeTournament.Description))
-                        {
-                            <div class="mt-3 p-2" style="background: rgba(0, 229, 255, 0.05); border-left: 3px solid var(--primary-cyan); border-radius: 8px;">
-                                <small style="color: var(--text-muted);">
-                                    <i class="fas fa-quote-left me-2"></i>@activeTournament.Description
-                                </small>
                             </div>
-                        }
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         }
     }
     else
@@ -193,8 +210,6 @@
         }
 
         .mode-info-box:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         .mode-info-box h5 {

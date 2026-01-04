@@ -29,9 +29,22 @@ namespace RoboticsFixture.Models
         [ForeignKey("WinnerId")]
         public Competitor? Winner { get; set; }
 
+        /// <summary>
+        /// [DEPRECATED] Indica si el match era un BYE (avance automático sin combate).
+        /// Mantenido solo para retrocompatibilidad con datos históricos.
+        /// Los nuevos torneos utilizan combates extra en Round 0 en su lugar.
+        /// </summary>
         public bool IsBye { get; set; }
 
         public bool IsRepechaje { get; set; }
+
+        /// <summary>
+        /// Indica si este combate es un "Combate Extra" (Play-In) generado por número impar.
+        /// ESTE ES EL CAMPO PRINCIPAL para identificar combates extra en UI y lógica nueva.
+        /// IsRepechaje se mantiene solo para compatibilidad interna.
+        /// El perdedor de este combate queda eliminado inmediatamente.
+        /// </summary>
+        public bool IsExtraMatch { get; set; } = false;
 
         public bool IsCompleted { get; set; }
 

@@ -103,7 +103,7 @@ namespace RoboticsFixture.Services
         {
             public int Round { get; set; }
             public int WinnerId { get; set; }
-            public string WinnerName { get; set; }
+            public required string WinnerName { get; set; }
         }
     }
 }

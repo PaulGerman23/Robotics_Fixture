@@ -177,15 +177,15 @@ namespace RoboticsFixture.Controllers.Api
                 m.Position,
                 Competitor1 = new
                 {
-                    m.Competitor1.Id,
-                    m.Competitor1.Name,
-                    m.Competitor1.Team
+                    m.Competitor1!.Id,
+                    m.Competitor1!.Name,
+                    m.Competitor1!.Team
                 },
                 Competitor2 = new
                 {
-                    m.Competitor2.Id,
-                    m.Competitor2.Name,
-                    m.Competitor2.Team
+                    m.Competitor2!.Id,
+                    m.Competitor2!.Name,
+                    m.Competitor2!.Team
                 },
                 Tournament = m.Tournament != null ? new
                 {

@@ -13,11 +13,11 @@ namespace RoboticsFixture.Models
 
         [Required(ErrorMessage = "El nombre del torneo es requerido")]
         [StringLength(200)]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [Required(ErrorMessage = "La categoría es requerida")]
         [StringLength(50)]
-        public string Category { get; set; }
+        public required string Category { get; set; }
 
         /// <summary>
         /// Modo de combate del torneo (Autónomo o Radiocontrol).
@@ -42,5 +42,11 @@ namespace RoboticsFixture.Models
         /// </summary>
         [StringLength(500)]
         public string? Description { get; set; }
+
+        /// <summary>
+        /// Estrategia para determinar qué competidores participan en el combate extra
+        /// cuando hay un número impar de competidores.
+        /// </summary>
+        public ExtraMatchStrategy ExtraMatchStrategy { get; set; } = ExtraMatchStrategy.Random;
     }
 }

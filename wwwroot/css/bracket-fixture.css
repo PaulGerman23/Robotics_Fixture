@@ -1,0 +1,380 @@
+/* ===================================
+   DISEÑO BRACKET - SISTEMA DE FIXTURE TORNEO
+   Estilo: Bracket Eliminatorio con Fondo Hexagonal
+   =================================== */
+
+/* Fondo hexagonal con patrón */
+.bracket-fixture-wrapper {
+    position: relative;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0f1f 0%, #151b2e 50%, #1a0a1f 100%);
+    padding: 2rem 0;
+    overflow-x: auto;
+}
+
+.bracket-fixture-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        repeating-linear-gradient(60deg, transparent 0px, transparent 40px, rgba(0, 229, 255, 0.03) 40px, rgba(0, 229, 255, 0.03) 80px),
+        repeating-linear-gradient(-60deg, transparent 0px, transparent 40px, rgba(255, 71, 87, 0.03) 40px, rgba(255, 71, 87, 0.03) 80px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Patrón hexagonal más visible */
+.bracket-fixture-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 0% 50%, rgba(0, 229, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 100% 50%, rgba(255, 71, 87, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Encabezado del torneo con dropdown */
+.bracket-tournament-header {
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(168, 85, 247, 0.08));
+    border: 2px solid rgba(0, 229, 255, 0.4);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    margin: 0 auto 3rem;
+    max-width: 800px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.bracket-tournament-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.bracket-tournament-title i {
+    color: var(--primary-cyan);
+    filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.8));
+}
+
+/* Contenedor principal del bracket */
+.bracket-container {
+    display: flex;
+    gap: 4rem;
+    padding: 2rem;
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+    z-index: 1;
+    min-width: max-content;
+}
+
+/* Columna de ronda */
+.bracket-round-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    min-width: 400px;
+}
+
+/* Encabezado de ronda */
+.bracket-round-header {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--primary-cyan);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 1rem;
+    background: rgba(0, 229, 255, 0.1);
+    border: 2px solid rgba(0, 229, 255, 0.4);
+    border-radius: 12px;
+    text-shadow: 0 0 15px rgba(0, 229, 255, 0.7);
+    margin-bottom: 1rem;
+}
+
+/* Contenedor de combates de la ronda */
+.bracket-matches-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    position: relative;
+}
+
+/* Tarjeta de combate compacta */
+.bracket-match-card {
+    background: linear-gradient(135deg, rgba(26, 33, 55, 0.95), rgba(21, 27, 46, 0.98));
+    border: 2px solid rgba(0, 229, 255, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.bracket-match-card:hover {
+    border-color: rgba(0, 229, 255, 0.6);
+    box-shadow: 0 12px 40px rgba(0, 229, 255, 0.3);
+    transform: translateY(-3px);
+}
+
+.bracket-match-card.completed {
+    border-color: rgba(0, 255, 136, 0.5);
+}
+
+/* Fila de competidor */
+.bracket-competitor-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.bracket-competitor-row:first-child {
+    border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+}
+
+/* Competidor cyan (arriba) */
+.bracket-competitor-row.cyan-side {
+    background: linear-gradient(90deg, rgba(0, 229, 255, 0.1), transparent);
+    border-left: 4px solid #00e5ff;
+}
+
+.bracket-competitor-row.cyan-side:hover {
+    background: linear-gradient(90deg, rgba(0, 229, 255, 0.15), transparent);
+}
+
+/* Competidor rojo (abajo) */
+.bracket-competitor-row.red-side {
+    background: linear-gradient(90deg, rgba(255, 71, 87, 0.1), transparent);
+    border-left: 4px solid #ff4757;
+}
+
+.bracket-competitor-row.red-side:hover {
+    background: linear-gradient(90deg, rgba(255, 71, 87, 0.15), transparent);
+}
+
+/* Ganador destacado */
+.bracket-competitor-row.winner {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.15), transparent);
+    box-shadow: inset 4px 0 15px rgba(255, 215, 0, 0.3);
+}
+
+/* Información del competidor */
+.bracket-competitor-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.bracket-robot-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+    transition: all 0.3s ease;
+}
+
+.cyan-side .bracket-robot-icon {
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.3), rgba(0, 153, 255, 0.4));
+    border: 2px solid #00e5ff;
+    color: #00e5ff;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+}
+
+.red-side .bracket-robot-icon {
+    background: linear-gradient(135deg, rgba(255, 71, 87, 0.3), rgba(220, 53, 69, 0.4));
+    border: 2px solid #ff4757;
+    color: #ff4757;
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+}
+
+.bracket-competitor-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.bracket-competitor-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.cyan-side .bracket-competitor-name {
+    color: #00e5ff;
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+}
+
+.red-side .bracket-competitor-name {
+    color: #ff4757;
+    text-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+}
+
+.bracket-competitor-team {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Indicador de ganador circular */
+.bracket-winner-indicator {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.bracket-winner-indicator.selectable {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.bracket-winner-indicator.selectable:hover {
+    background: rgba(255, 215, 0, 0.2);
+    border-color: #ffd700;
+    transform: scale(1.15);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+}
+
+.cyan-side .bracket-winner-indicator.selected {
+    background: linear-gradient(135deg, #00e5ff, #0099ff);
+    border-color: #00e5ff;
+    color: #0a0f1f;
+    box-shadow: 0 0 25px rgba(0, 229, 255, 0.8);
+}
+
+.red-side .bracket-winner-indicator.selected {
+    background: linear-gradient(135deg, #ff4757, #dc3545);
+    border-color: #ff4757;
+    color: #ffffff;
+    box-shadow: 0 0 25px rgba(255, 71, 87, 0.8);
+}
+
+/* Líneas de conexión entre rondas */
+.bracket-connector {
+    position: absolute;
+    right: -4rem;
+    top: 50%;
+    width: 4rem;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(0, 229, 255, 0.5), rgba(0, 229, 255, 0.2));
+    pointer-events: none;
+}
+
+.bracket-connector::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -4px;
+    width: 10px;
+    height: 10px;
+    background: #00e5ff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.8);
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+    .bracket-container {
+        gap: 2rem;
+    }
+    
+    .bracket-round-column {
+        min-width: 350px;
+    }
+    
+    .bracket-connector {
+        right: -2rem;
+        width: 2rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .bracket-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .bracket-round-column {
+        width: 100%;
+        max-width: 500px;
+    }
+    
+    .bracket-connector {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .bracket-fixture-wrapper {
+        padding: 1rem 0;
+    }
+    
+    .bracket-tournament-header {
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .bracket-tournament-title {
+        font-size: 1.2rem;
+        letter-spacing: 1px;
+    }
+    
+    .bracket-container {
+        padding: 1rem;
+    }
+    
+    .bracket-round-column {
+        min-width: 100%;
+    }
+    
+    .bracket-round-header {
+        font-size: 1rem;
+    }
+    
+    .bracket-competitor-row {
+        padding: 0.8rem 1rem;
+    }
+    
+    .bracket-competitor-name {
+        font-size: 0.95rem;
+    }
+    
+    .bracket-robot-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1.2rem;
+    }
+}

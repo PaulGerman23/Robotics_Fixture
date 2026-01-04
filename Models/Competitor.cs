@@ -9,15 +9,15 @@ namespace RoboticsFixture.Models
 
         [Required(ErrorMessage = "El nombre es requerido")]
         [StringLength(100)]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [Required(ErrorMessage = "El equipo es requerido")]
         [StringLength(100)]
-        public string Team { get; set; }
+        public required string Team { get; set; }
 
         [Required(ErrorMessage = "La categoría es requerida")]
         [StringLength(50)]
-        public string Category { get; set; }
+        public required string Category { get; set; }
 
         public bool IsActive { get; set; } = true;
 
@@ -34,5 +34,12 @@ namespace RoboticsFixture.Models
         /// </summary>
         [StringLength(500)]
         public string? Description { get; set; }
+
+        /// <summary>
+        /// Contador de combates extra (play-in) en los que ha participado.
+        /// Usado para la regla de justicia: evitar castigar al mismo competidor repetidamente.
+        /// NOTA: Se resetea al inicio de cada torneo para no arrastrar datos entre torneos.
+        /// </summary>
+        public int ExtraMatchCount { get; set; } = 0;
     }
 }

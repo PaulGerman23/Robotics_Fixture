@@ -1,0 +1,500 @@
+/* ===================================
+   NUEVO DISEÑO DE COMBATES - ESTILO FUTURISTA
+   =================================== */
+
+/* Tarjeta de combate principal */
+.match-card-new {
+    background: linear-gradient(135deg, rgba(26, 33, 55, 0.95), rgba(21, 27, 46, 0.98));
+    border: 2px solid rgba(0, 229, 255, 0.3);
+    border-radius: 20px;
+    margin-bottom: 3rem;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.match-card-new::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 229, 255, 0.03) 2px, rgba(0, 229, 255, 0.03) 4px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 229, 255, 0.03) 2px, rgba(0, 229, 255, 0.03) 4px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.match-card-new:hover {
+    border-color: rgba(0, 229, 255, 0.6);
+    box-shadow: 0 15px 50px rgba(0, 229, 255, 0.3);
+    transform: translateY(-5px);
+}
+
+body.light-theme .match-card-new {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(240, 244, 248, 0.95));
+    border-color: rgba(0, 153, 255, 0.4);
+}
+
+/* Encabezado del combate */
+.match-header-new {
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.15), rgba(168, 85, 247, 0.1));
+    border-bottom: 2px solid rgba(0, 229, 255, 0.4);
+    padding: 1.2rem 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.match-title-new {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+}
+
+body.light-theme .match-title-new {
+    color: var(--text-primary);
+    text-shadow: 0 0 5px rgba(0, 153, 255, 0.3);
+}
+
+/* Contenido del combate - diseño horizontal */
+.match-content-new {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3rem 2rem;
+    position: relative;
+    z-index: 1;
+    gap: 2rem;
+}
+
+/* Lado del competidor */
+.competitor-side-new {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+/* Competidor izquierdo (Cyan) */
+.left-competitor {
+    align-items: flex-start;
+}
+
+.left-competitor .robot-icon-hex,
+.left-competitor .competitor-name-new,
+.left-competitor .competitor-team-new {
+    align-self: center;
+}
+
+/* Competidor derecho (Rojo) */
+.right-competitor {
+    align-items: flex-end;
+}
+
+.right-competitor .robot-icon-hex,
+.right-competitor .competitor-name-new,
+.right-competitor .competitor-team-new {
+    align-self: center;
+}
+
+/* Iconos hexagonales de robot */
+.robot-icon-hex {
+    width: 140px;
+    height: 140px;
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4.5rem;
+    position: relative;
+    transition: all 0.4s ease;
+}
+
+.robot-icon-hex i {
+    filter: drop-shadow(0 0 15px currentColor);
+    animation: robotPulse 3s ease-in-out infinite;
+}
+
+@keyframes robotPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Hexágono cyan (izquierda) */
+.cyan-hex {
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.3), rgba(0, 153, 255, 0.4));
+    border: 3px solid #00e5ff;
+    box-shadow:
+        0 0 30px rgba(0, 229, 255, 0.6),
+        inset 0 0 30px rgba(0, 229, 255, 0.2);
+    color: #00e5ff;
+}
+
+.cyan-hex:hover {
+    box-shadow:
+        0 0 50px rgba(0, 229, 255, 0.9),
+        inset 0 0 40px rgba(0, 229, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* Hexágono rojo (derecha) */
+.red-hex {
+    background: linear-gradient(135deg, rgba(255, 71, 87, 0.3), rgba(220, 53, 69, 0.4));
+    border: 3px solid #ff4757;
+    box-shadow:
+        0 0 30px rgba(255, 71, 87, 0.6),
+        inset 0 0 30px rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+}
+
+.red-hex:hover {
+    box-shadow:
+        0 0 50px rgba(255, 71, 87, 0.9),
+        inset 0 0 40px rgba(255, 71, 87, 0.3);
+    transform: scale(1.1);
+}
+
+/* Nombre del competidor */
+.competitor-name-new {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+
+.competitor-name-new h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+}
+
+.left-competitor .competitor-name-new h3 {
+    color: #00e5ff;
+    text-shadow: 0 0 20px rgba(0, 229, 255, 0.8);
+}
+
+.right-competitor .competitor-name-new h3 {
+    color: #ff4757;
+    text-shadow: 0 0 20px rgba(255, 71, 87, 0.8);
+}
+
+.emoji-icon {
+    font-size: 1.5rem;
+    filter: drop-shadow(0 0 10px currentColor);
+}
+
+/* Equipo del competidor */
+.competitor-team-new {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+}
+
+/* Botones de selección de ganador */
+.winner-btn-new {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 1rem 2rem;
+    margin-top: 1.5rem;
+    border: 3px solid;
+    border-radius: 12px;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.winner-btn-new::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+    z-index: 0;
+}
+
+.winner-btn-new:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.winner-form-new {
+    display: inline-block;
+    margin: 0;
+}
+
+/* Botón cyan */
+.cyan-btn {
+    border-color: #00e5ff;
+    color: #00e5ff;
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+}
+
+.cyan-btn:hover {
+    background: rgba(0, 229, 255, 0.2);
+    box-shadow: 0 0 40px rgba(0, 229, 255, 0.7);
+    transform: translateY(-3px);
+    color: #00e5ff;
+}
+
+/* Botón rojo */
+.red-btn {
+    border-color: #ff4757;
+    color: #ff4757;
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.4);
+}
+
+.red-btn:hover {
+    background: rgba(255, 71, 87, 0.2);
+    box-shadow: 0 0 40px rgba(255, 71, 87, 0.7);
+    transform: translateY(-3px);
+    color: #ff4757;
+}
+
+/* Trofeo central */
+.trophy-center-new {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.2), transparent);
+    border-radius: 50%;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.5);
+    flex-shrink: 0;
+}
+
+.trophy-center-new i {
+    font-size: 3.5rem;
+    color: #ffd700;
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+    animation: trophyFloat 3s ease-in-out infinite;
+}
+
+@keyframes trophyFloat {
+
+    0%,
+    100% {
+        transform: translateY(0px) scale(1);
+    }
+
+    50% {
+        transform: translateY(-10px) scale(1.05);
+    }
+}
+
+/* Badge de ganador */
+.winner-badge-new {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 1rem 2rem;
+    margin-top: 1.5rem;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cyan-winner {
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.3), rgba(0, 153, 255, 0.4));
+    border: 3px solid #00e5ff;
+    color: #00e5ff;
+    box-shadow: 0 0 30px rgba(0, 229, 255, 0.7);
+}
+
+.red-winner {
+    background: linear-gradient(135deg, rgba(255, 71, 87, 0.3), rgba(220, 53, 69, 0.4));
+    border: 3px solid #ff4757;
+    color: #ff4757;
+    box-shadow: 0 0 30px rgba(255, 71, 87, 0.7);
+}
+
+.winner-badge-new i {
+    filter: drop-shadow(0 0 10px currentColor);
+}
+
+/* Efecto de resplandor para el ganador */
+.winner-glow {
+    animation: winnerGlow 2s ease-in-out infinite;
+}
+
+@keyframes winnerGlow {
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.2);
+    }
+}
+
+/* Resultado del combate */
+.match-result-new {
+    padding: 1.5rem 2rem;
+    background: rgba(0, 229, 255, 0.05);
+    border-top: 2px solid rgba(0, 229, 255, 0.3);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.match-result-new small {
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1.8;
+}
+
+/* Combate completado */
+.match-completed {
+    border-color: rgba(0, 255, 136, 0.5);
+}
+
+.match-completed:hover {
+    box-shadow: 0 15px 50px rgba(0, 255, 136, 0.3);
+}
+
+/* Combate extra */
+.match-card-new.extra-match {
+    border-color: rgba(220, 53, 69, 0.5);
+}
+
+.match-card-new.extra-match .match-header-new {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(255, 71, 87, 0.15));
+    border-bottom-color: rgba(220, 53, 69, 0.5);
+}
+
+/* BYE match */
+.bye-match {
+    border-color: rgba(255, 159, 0, 0.5);
+}
+
+.bye-message {
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.bye-message i {
+    font-size: 4rem;
+    color: var(--secondary-orange);
+    filter: drop-shadow(0 0 20px rgba(255, 159, 0, 0.8));
+    margin-bottom: 1.5rem;
+}
+
+.bye-message h4 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--secondary-orange);
+    margin: 1rem 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.bye-message p {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .match-content-new {
+        flex-direction: column;
+        gap: 3rem;
+        padding: 2rem 1rem;
+    }
+
+    .left-competitor,
+    .right-competitor {
+        align-items: center;
+        width: 100%;
+    }
+
+    .trophy-center-new {
+        order: -1;
+    }
+
+    .robot-icon-hex {
+        width: 120px;
+        height: 120px;
+        font-size: 3.5rem;
+    }
+
+    .competitor-name-new h3 {
+        font-size: 1.5rem;
+    }
+
+    .winner-btn-new {
+        width: 100%;
+        max-width: 350px;
+    }
+}
+
+@media (max-width: 576px) {
+    .match-header-new {
+        padding: 1rem;
+    }
+
+    .match-title-new {
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+
+    .robot-icon-hex {
+        width: 100px;
+        height: 100px;
+        font-size: 3rem;
+    }
+
+    .competitor-name-new h3 {
+        font-size: 1.2rem;
+    }
+
+    .competitor-team-new {
+        font-size: 0.9rem;
+    }
+
+    .winner-btn-new {
+        font-size: 0.85rem;
+        padding: 0.8rem 1.5rem;
+    }
+}

@@ -71,7 +71,7 @@ namespace RoboticsFixture.Data
 
             modelBuilder.Entity<Tournament>()
                 .Property(t => t.CreatedDate)
-                .HasDefaultValueSql("GETDATE()");
+                .HasDefaultValueSql("datetime('now')");
 
             modelBuilder.Entity<Match>()
                 .Property(m => m.RoundsPlayed)

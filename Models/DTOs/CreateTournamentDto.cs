@@ -11,11 +11,11 @@ namespace RoboticsFixture.Models.DTOs
     {
         [Required(ErrorMessage = "El nombre del torneo es requerido")]
         [StringLength(200)]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [Required(ErrorMessage = "La categoría es requerida")]
         [StringLength(50)]
-        public string Category { get; set; }
+        public required string Category { get; set; }
 
         /// <summary>
         /// Modo de combate del torneo.
@@ -28,5 +28,13 @@ namespace RoboticsFixture.Models.DTOs
         /// </summary>
         [StringLength(500)]
         public string? Description { get; set; }
+
+        /// <summary>
+        /// Estrategia para determinar qué competidores participan en el combate extra
+        /// cuando hay un número impar de competidores.
+        /// </summary>
+        [Required(ErrorMessage = "Debe seleccionar una estrategia de combate extra")]
+        public ExtraMatchStrategy ExtraMatchStrategy { get; set; }
+
     }
 }
